@@ -13,6 +13,7 @@ venv/
 env/
 .venv/
 .env
+.pytest_cache/
 
 # Jupyter
 .ipynb_checkpoints/
