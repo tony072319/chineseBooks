@@ -35,3 +35,7 @@ logs/
 
 # 个人草稿（未准备好提交的章节）
 writing/章节/_草稿/
+
+# so-novel 安装包与下载产物（安装方法在 docs/技术/ 里）
+tools/
+downloads/

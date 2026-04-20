@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from .base import BaseScraper
 from .biquge import BiqugeScraper
+from .ingest import ingest_path
 from .metadata import MetadataStore, slugify
 from .piaotian import PiaotianScraper
 
@@ -44,6 +45,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     remove = sub.add_parser("remove", help="从 metadata 移除一本书（不删文件）")
     remove.add_argument("title_or_slug")
+
+    ingest = sub.add_parser("ingest", help="吃一份 so-novel 的 TXT 输出并入库")
+    ingest.add_argument("path", help="so-novel 输出的 TXT 文件或章节目录")
+    ingest.add_argument("--genre", default="", help="类型标记")
+    ingest.add_argument("--tags", default="", help="逗号分隔标签")
+    ingest.add_argument("--overwrite", action="store_true", help="覆盖已存在的章节文件")
 
     return parser
 
@@ -102,6 +109,23 @@ def cmd_list(_: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ingest(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    tags = [t.strip() for t in args.tags.split(",") if t.strip()]
+    result = ingest_path(
+        Path(args.path),
+        genre=args.genre,
+        tags=tags,
+        overwrite=args.overwrite,
+    )
+    print(f"已入库：{result.title} · {result.author or '未知作者'}")
+    print(f"  slug       ：{result.slug}")
+    print(f"  新增章节数  ：{result.chapters_written}")
+    print(f"  总字数累计  ：{result.total_words}")
+    return 0
+
+
 def cmd_remove(args: argparse.Namespace) -> int:
     store = MetadataStore()
     slug = args.title_or_slug
@@ -125,6 +149,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_scrape(args)
     if args.cmd == "list":
         return cmd_list(args)
+    if args.cmd == "ingest":
+        return cmd_ingest(args)
     if args.cmd == "remove":
         return cmd_remove(args)
     parser.print_help()

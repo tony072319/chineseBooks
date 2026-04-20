@@ -47,7 +47,8 @@
 
 ## 技术文档
 
-- [`docs/技术/Phase2_爬虫使用说明.md`](docs/技术/Phase2_爬虫使用说明.md) — 语料采集管线使用指南
+- [`docs/技术/so-novel_安装与使用.md`](docs/技术/so-novel_安装与使用.md) — **推荐路径**：so-novel 下载 + ingest 入库
+- [`docs/技术/Phase2_爬虫使用说明.md`](docs/技术/Phase2_爬虫使用说明.md) — 备用路径：自写爬虫（镜像不在 so-novel 规则内时用）
 
 ---
 
