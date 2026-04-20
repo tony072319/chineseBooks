@@ -19,6 +19,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
+import chardet
+
 from .config import RAW_DIR
 from .metadata import BookRecord, MetadataStore, slugify
 
@@ -30,19 +32,61 @@ logger = logging.getLogger(__name__)
 #   第1章：XXX
 #   第一百零八章 XXX
 #   第001章 XXX
+#   新世界 第一章 XXX  （续集带前缀）
+# 严格要求：行首（允许 ≤8 字的短前缀）匹配 "第X章"，整行 <= 80 字。
+# 避免把正文里的"第一回合"、"这里是第一章的描述"等误识别为章节标题。
 CHAPTER_HEADING = re.compile(
-    r"^\s*第\s*[零一二三四五六七八九十百千万亿0-9]+\s*[章节回卷]\s*[\s：:．.、-]?\s*(.*\S)?\s*$"
+    r"^\s*(?:\S{1,8}\s+)?"
+    r"第\s*([零一二三四五六七八九十百千万亿0-9]{1,15})\s*章"
+    r"(?=[\s：:．.、，,。\-（(]|$)"  # 章 后必须是分隔符或行尾，排除"第一章的..."
 )
 
-# so-novel 文件名样式：`第一章 XXX.txt`
+# 文件名提取章节标题：`第一章 XXX.txt`
 FILENAME_CHAPTER = re.compile(
     r"^(?:\d+[_\.\s]+)?(第\s*[零一二三四五六七八九十百千万亿0-9]+\s*[章节回卷]\s*.+?)\.txt$"
 )
+
+MAX_HEADING_LINE_LEN = 80
+MAX_CHAPTER_NUMBER = 5000
+
+
+def detect_chapter_heading(line: str) -> tuple[int, str] | None:
+    """若 line 是章节标题，返回 (章号, 完整标题)；否则返回 None。"""
+    stripped = line.strip()
+    if not stripped or len(stripped) > MAX_HEADING_LINE_LEN:
+        return None
+    m = CHAPTER_HEADING.match(stripped)
+    if not m:
+        return None
+    num = cn_to_int(m.group(1))
+    if num is None or num <= 0 or num > MAX_CHAPTER_NUMBER:
+        return None
+    return num, stripped
 
 BOOK_DIR_PATTERN = re.compile(r"^(.+?)[（(](.+?)[)）]$")  # "斗破苍穹（天蚕土豆）"
 
 _CN_NUM_MAP = {ch: i for i, ch in enumerate("零一二三四五六七八九", start=0)}
 _CN_UNITS = {"十": 10, "百": 100, "千": 1000, "万": 10000, "亿": 10**8}
+
+
+def read_text_auto(path: Path) -> str:
+    """自动识别 TXT 文件编码（utf-8 / gb18030 / big5 等），返回解码后的字符串。
+
+    策略：先试 UTF-8（覆盖大部分现代文件），再试 GB18030（覆盖绝大多数中文
+    简体文件，是 GBK/GB2312 的超集），最后用 chardet 兜底。chardet 对短中文
+    样本会误判（常识别成 koi8-u/ISO-8859 之类），所以不做第一选择。
+    """
+    raw = path.read_bytes()
+    for enc in ("utf-8-sig", "utf-8", "gb18030"):
+        try:
+            return raw.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    guess = (chardet.detect(raw[:200_000]).get("encoding") or "utf-8").lower()
+    try:
+        return raw.decode(guess, errors="replace")
+    except LookupError:
+        return raw.decode("utf-8", errors="replace")
 
 
 @dataclass
@@ -85,7 +129,7 @@ def cn_to_int(text: str) -> int | None:
 
 def chapter_number(title: str) -> int | None:
     """从章节标题提取章节号（阿拉伯或中文皆可）。"""
-    m = re.match(r"^\s*第\s*([零一二三四五六七八九十百千万亿0-9]+)\s*[章节回卷]", title)
+    m = re.search(r"第\s*([零一二三四五六七八九十百千万亿0-9]+)\s*章", title)
     if not m:
         return None
     return cn_to_int(m.group(1))
@@ -122,7 +166,7 @@ def parse_directory(path: Path) -> tuple[str, str, list[ParsedChapter]]:
         if num is None:
             fallback_index += 1
             num = fallback_index
-        body = f.read_text(encoding="utf-8", errors="replace").strip()
+        body = read_text_auto(f).strip()
         chapters.append(ParsedChapter(index=num, title=chapter_title, body=body))
 
     # 去重（目录模式偶尔会有重复章节号），取最长 body
@@ -137,7 +181,7 @@ def parse_directory(path: Path) -> tuple[str, str, list[ParsedChapter]]:
 
 def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
     """单文件模式：整本书一个 TXT，头部"书名/作者"，章节以标题行分隔。"""
-    text = path.read_text(encoding="utf-8", errors="replace")
+    text = read_text_auto(path)
     lines = text.splitlines()
 
     title = path.stem
@@ -161,26 +205,30 @@ def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
 
     chapters: list[ParsedChapter] = []
     current_title: str | None = None
+    current_parsed_num: int | None = None
     current_lines: list[str] = []
-    fallback_index = 0
 
     def flush() -> None:
-        nonlocal current_title, current_lines, fallback_index
+        nonlocal current_title, current_parsed_num, current_lines
         if current_title is None:
             return
-        num = chapter_number(current_title)
-        if num is None:
-            fallback_index += 1
-            num = fallback_index
         body = "\n".join(current_lines).strip()
-        chapters.append(ParsedChapter(index=num, title=current_title, body=body))
+        chapters.append(
+            ParsedChapter(
+                index=current_parsed_num or 0,   # 临时值，后面会按位置重写
+                title=current_title,
+                body=body,
+            )
+        )
         current_title = None
+        current_parsed_num = None
         current_lines = []
 
     for line in lines[body_start:]:
-        if CHAPTER_HEADING.match(line):
+        detected = detect_chapter_heading(line)
+        if detected is not None:
             flush()
-            current_title = line.strip()
+            current_parsed_num, current_title = detected
         elif current_title is not None:
             current_lines.append(line)
     flush()
@@ -188,7 +236,16 @@ def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
     if not chapters:
         raise ValueError(f"从 {path} 未解析出任何章节（没有识别到章节标题）。")
 
-    return title, author, chapters
+    # 丢弃明显是噪声的章节（body < 200 字，多半是正文里偶然出现"第X章"）
+    filtered = [c for c in chapters if len(c.body) >= 200]
+    if not filtered:
+        filtered = chapters  # 全本都很短时保底
+
+    # 按位置单调重编号（处理续集章号重置 / 乱序 / 重复）
+    for pos, c in enumerate(filtered, start=1):
+        c.index = pos
+
+    return title, author, filtered
 
 
 def _right_of_colon(s: str) -> str:

@@ -39,3 +39,8 @@ writing/章节/_草稿/
 # so-novel 安装包与下载产物（安装方法在 docs/技术/ 里）
 tools/
 downloads/
+
+# 仓库根目录不放任何原文 TXT —— 上传的小说请直接扔进 tools/ 或用 ingest 入库
+/*.txt
+/books
+

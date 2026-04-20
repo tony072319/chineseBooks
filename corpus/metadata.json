@@ -1,3 +1,46 @@
 {
-  "books": {}
+  "books": {
+    "斗破苍穹": {
+      "slug": "斗破苍穹",
+      "title": "斗破苍穹",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "斗破苍穹.txt",
+      "genre": "玄幻",
+      "tags": [
+        "升级流",
+        "复仇",
+        "黄金三章",
+        "炼药"
+      ],
+      "total_chapters": 1697,
+      "scraped_chapters": 1697,
+      "total_words": 5259040,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:01:09",
+      "updated_at": "2026-04-20T05:01:09",
+      "notes": ""
+    },
+    "全职高手": {
+      "slug": "全职高手",
+      "title": "全职高手",
+      "author": "蝴蝶蓝",
+      "source": "so-novel",
+      "source_url": "全职高手.txt",
+      "genre": "游戏",
+      "tags": [
+        "电竞",
+        "职业",
+        "团队",
+        "竞技"
+      ],
+      "total_chapters": 1402,
+      "scraped_chapters": 1402,
+      "total_words": 4652923,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:01:12",
+      "updated_at": "2026-04-20T05:01:12",
+      "notes": ""
+    }
+  }
 }

@@ -11,6 +11,7 @@ from scrapers.ingest import (
     ingest_path,
     parse_directory,
     parse_single_file,
+    read_text_auto,
 )
 from scrapers.metadata import MetadataStore
 
@@ -91,6 +92,40 @@ def test_parse_directory_reads_per_chapter_files(tmp_path: Path) -> None:
     assert author == "某作者"
     assert [c.index for c in chapters] == [1, 2, 3]
     assert chapters[1].body == "正文 2"
+
+
+def test_read_text_auto_decodes_utf8_and_gbk(tmp_path: Path) -> None:
+    utf8_path = tmp_path / "utf8.txt"
+    utf8_path.write_text("斗破苍穹\n第一章 陨落的天才\n", encoding="utf-8")
+    assert "斗破苍穹" in read_text_auto(utf8_path)
+
+    gbk_path = tmp_path / "gbk.txt"
+    gbk_path.write_bytes("全职高手\n第一章 封号被废\n".encode("gbk"))
+    decoded = read_text_auto(gbk_path)
+    assert "全职高手" in decoded
+    assert "第一章" in decoded
+
+    utf8_bom = tmp_path / "bom.txt"
+    utf8_bom.write_bytes("\ufeff十日终焉\n".encode("utf-8"))
+    assert read_text_auto(utf8_bom).startswith("十日终焉")
+
+
+def test_parse_single_file_works_on_gbk(tmp_path: Path) -> None:
+    content = (
+        "书名：测试GBK\n"
+        "作者：某某\n"
+        "\n"
+        "第一章 开场\n"
+        "中文正文，编码是 GBK。\n"
+        "第二章 继续\n"
+        "还是中文。\n"
+    )
+    f = tmp_path / "test_gbk.txt"
+    f.write_bytes(content.encode("gbk"))
+    title, author, chapters = parse_single_file(f)
+    assert title == "测试GBK"
+    assert author == "某某"
+    assert len(chapters) == 2
 
 
 def test_parse_single_file_errors_without_chapters(tmp_path: Path) -> None:
