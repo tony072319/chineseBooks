@@ -12,7 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .config import PROJECT_ROOT
-from .ingest import ingest_path
+from .ingest import ingest_path, normalize_filename_title
 
 # 类型 + 标签预设。不求一步到位，后续可以手动微调 corpus/metadata.json。
 BOOK_META: dict[str, tuple[str, list[str]]] = {
@@ -37,6 +37,9 @@ BOOK_META: dict[str, tuple[str, list[str]]] = {
     "诡秘之主":             ("克苏鲁", ["神秘学", "蒸汽朋克", "爱潜水的乌贼"]),
     "牧神记":               ("仙侠", ["东方神话", "道教", "宅猪"]),
     "遮天":                 ("玄幻", ["洪荒", "世界观", "辰东"]),
+    "仙逆":                 ("仙侠", ["仙侠", "耳根"]),
+    "大奉打更人":           ("仙侠", ["探案", "权谋", "卖报小郎君"]),
+    "庆余年":               ("历史", ["架空", "权谋", "猫腻"]),
 }
 
 
@@ -46,7 +49,7 @@ def batch_ingest(root: Path | None = None) -> list[tuple[str, str]]:
     for txt in sorted(root.glob("*.txt")):
         if txt.name == "requirements.txt":
             continue
-        stem = txt.stem
+        stem = normalize_filename_title(txt.stem)
         genre, tags = BOOK_META.get(stem, ("", []))
         try:
             result = ingest_path(txt, genre=genre, tags=tags)

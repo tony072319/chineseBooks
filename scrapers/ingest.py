@@ -79,6 +79,36 @@ def detect_chapter_heading(line: str, numeric_style: bool = False) -> tuple[int,
 
 BOOK_DIR_PATTERN = re.compile(r"^(.+?)[（(](.+?)[)）]$")  # "斗破苍穹（天蚕土豆）"
 
+# 从文件名中剥离常见的"（校对版全本）"、"作者：XXX"、外层 《》 等装饰，返回纯书名
+_FILENAME_NOISE_PATTERNS = [
+    re.compile(r"[ \t]*作\s*者\s*[:：]\s*.+$"),          # 尾部 "作者：耳根"
+    re.compile(r"[（(][^（）()]*?"
+               r"(?:校对|精校|全本|完结|完本|完整|最新|修订|简体|繁体|小说|TXT|txt)"
+               r"[^（）()]*?[)）]"),                      # "（校对版全本）" / "(完本)" 等
+    re.compile(r"^《|》$"),                               # 外层书名号
+]
+
+
+def normalize_filename_title(raw: str) -> str:
+    """清洗文件名里的噪声，留下纯粹的书名。
+
+    >>> normalize_filename_title("《仙逆》（校对版全本）作者：耳根")
+    '仙逆'
+    >>> normalize_filename_title("斗破苍穹(天蚕土豆)")
+    '斗破苍穹'
+    """
+    s = raw.strip()
+    while True:
+        prev = s
+        for pat in _FILENAME_NOISE_PATTERNS:
+            s = pat.sub("", s).strip()
+        if s == prev:
+            break
+    m = BOOK_DIR_PATTERN.match(s)
+    if m:
+        s = m.group(1).strip()
+    return s.strip() or raw
+
 _CN_NUM_MAP = {ch: i for i, ch in enumerate("零一二三四五六七八九", start=0)}
 _CN_UNITS = {"十": 10, "百": 100, "千": 1000, "万": 10000, "亿": 10**8}
 
@@ -198,7 +228,7 @@ def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
     text = read_text_auto(path)
     lines = text.splitlines()
 
-    title = path.stem
+    title = normalize_filename_title(path.stem)
     author = ""
     body_start = 0
 
@@ -214,10 +244,10 @@ def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
             author = value or author
             body_start = i + 1
 
-    # 如果文件名是"书名(作者)"风格，优先用那个
+    # 处理"斗破苍穹(天蚕土豆)"这种文件名：括号内是作者
     name_m = BOOK_DIR_PATTERN.match(path.stem)
-    if name_m:
-        title = name_m.group(1).strip()
+    if name_m and "校对" not in name_m.group(2) and "全本" not in name_m.group(2):
+        title = normalize_filename_title(name_m.group(1).strip())
         author = name_m.group(2).strip() or author
 
     def _split(numeric_style: bool) -> list[ParsedChapter]:
