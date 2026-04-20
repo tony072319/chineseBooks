@@ -40,7 +40,10 @@ writing/章节/_草稿/
 tools/
 downloads/
 
-# 仓库根目录不放任何原文 TXT —— 上传的小说请直接扔进 tools/ 或用 ingest 入库
+# 仓库根目录不放任何原文 TXT / EPUB / ZIP —— 上传后 ingest 入库就行
 /*.txt
+/*.epub
+/*.epub.zip
+/*.zip
 /books
 

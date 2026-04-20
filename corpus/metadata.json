@@ -1,24 +1,81 @@
 {
   "books": {
-    "斗破苍穹": {
-      "slug": "斗破苍穹",
-      "title": "斗破苍穹",
+    "一念永恒": {
+      "slug": "一念永恒",
+      "title": "一念永恒",
+      "author": "耳根",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/一念永恒.txt",
+      "genre": "仙侠",
+      "tags": [
+        "仙侠",
+        "耳根"
+      ],
+      "total_chapters": 1311,
+      "scraped_chapters": 1311,
+      "total_words": 3210859,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:13",
+      "updated_at": "2026-04-20T05:23:13",
+      "notes": ""
+    },
+    "万界之最强商人": {
+      "slug": "万界之最强商人",
+      "title": "万界之最强商人",
       "author": "",
       "source": "so-novel",
-      "source_url": "斗破苍穹.txt",
+      "source_url": "/home/user/chineseBooks/万界之最强商人.txt",
       "genre": "玄幻",
       "tags": [
-        "升级流",
-        "复仇",
-        "黄金三章",
-        "炼药"
+        "诸天流",
+        "商战"
       ],
-      "total_chapters": 1697,
-      "scraped_chapters": 1697,
-      "total_words": 5259040,
+      "total_chapters": 895,
+      "scraped_chapters": 895,
+      "total_words": 2763853,
       "is_complete": false,
-      "added_at": "2026-04-20T05:01:09",
-      "updated_at": "2026-04-20T05:01:09",
+      "added_at": "2026-04-20T05:23:14",
+      "updated_at": "2026-04-20T05:23:14",
+      "notes": ""
+    },
+    "修真聊天群": {
+      "slug": "修真聊天群",
+      "title": "修真聊天群",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/修真聊天群.txt",
+      "genre": "修真",
+      "tags": [
+        "都市修真",
+        "群聊流",
+        "圣骑士的传说"
+      ],
+      "total_chapters": 3172,
+      "scraped_chapters": 3172,
+      "total_words": 7199819,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:16",
+      "updated_at": "2026-04-20T05:23:16",
+      "notes": ""
+    },
+    "全球高武": {
+      "slug": "全球高武",
+      "title": "全球高武",
+      "author": "老鹰吃小鸡",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/全球高武.txt",
+      "genre": "玄幻",
+      "tags": [
+        "都市异能",
+        "系统流",
+        "老鹰吃小鸡"
+      ],
+      "total_chapters": 1431,
+      "scraped_chapters": 1431,
+      "total_words": 6981450,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:18",
+      "updated_at": "2026-04-20T05:23:18",
       "notes": ""
     },
     "全职高手": {
@@ -26,20 +83,261 @@
       "title": "全职高手",
       "author": "蝴蝶蓝",
       "source": "so-novel",
-      "source_url": "全职高手.txt",
+      "source_url": "/home/user/chineseBooks/全职高手.txt",
       "genre": "游戏",
       "tags": [
         "电竞",
-        "职业",
+        "职业联赛",
         "团队",
-        "竞技"
+        "蝴蝶蓝"
       ],
       "total_chapters": 1402,
       "scraped_chapters": 1402,
       "total_words": 4652923,
       "is_complete": false,
-      "added_at": "2026-04-20T05:01:12",
-      "updated_at": "2026-04-20T05:01:12",
+      "added_at": "2026-04-20T05:23:19",
+      "updated_at": "2026-04-20T05:23:19",
+      "notes": ""
+    },
+    "凡人修仙传": {
+      "slug": "凡人修仙传",
+      "title": "凡人修仙传",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/凡人修仙传.txt",
+      "genre": "修真",
+      "tags": [
+        "凡人流",
+        "仙侠",
+        "忘语"
+      ],
+      "total_chapters": 1989,
+      "scraped_chapters": 1989,
+      "total_words": 6461181,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:21",
+      "updated_at": "2026-04-20T05:23:21",
+      "notes": ""
+    },
+    "剑来": {
+      "slug": "剑来",
+      "title": "剑来",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/剑来.txt",
+      "genre": "仙侠",
+      "tags": [
+        "东方仙侠",
+        "成长向",
+        "烽火戏诸侯"
+      ],
+      "total_chapters": 1080,
+      "scraped_chapters": 1080,
+      "total_words": 9664696,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:23",
+      "updated_at": "2026-04-20T05:23:23",
+      "notes": ""
+    },
+    "吞噬星空": {
+      "slug": "吞噬星空",
+      "title": "吞噬星空",
+      "author": "我吃西红柿",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/吞噬星空.txt",
+      "genre": "玄幻",
+      "tags": [
+        "升级流",
+        "洪荒",
+        "星际",
+        "我吃西红柿"
+      ],
+      "total_chapters": 1485,
+      "scraped_chapters": 1485,
+      "total_words": 4285201,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:25",
+      "updated_at": "2026-04-20T05:23:25",
+      "notes": ""
+    },
+    "圣墟": {
+      "slug": "圣墟",
+      "title": "圣墟",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/圣墟.txt",
+      "genre": "玄幻",
+      "tags": [
+        "末世复苏",
+        "洪荒",
+        "辰东"
+      ],
+      "total_chapters": 1672,
+      "scraped_chapters": 1672,
+      "total_words": 5282769,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:26",
+      "updated_at": "2026-04-20T05:23:26",
+      "notes": ""
+    },
+    "大主宰": {
+      "slug": "大主宰",
+      "title": "大主宰",
+      "author": "天蚕土豆",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/大主宰.txt",
+      "genre": "玄幻",
+      "tags": [
+        "升级流",
+        "天蚕土豆"
+      ],
+      "total_chapters": 1364,
+      "scraped_chapters": 1364,
+      "total_words": 4371035,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:27",
+      "updated_at": "2026-04-20T05:23:27",
+      "notes": ""
+    },
+    "大王饶命": {
+      "slug": "大王饶命",
+      "title": "大王饶命",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/大王饶命.txt",
+      "genre": "都市",
+      "tags": [
+        "系统流",
+        "搞笑",
+        "会说话的肘子"
+      ],
+      "total_chapters": 1138,
+      "scraped_chapters": 1138,
+      "total_words": 2148038,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:28",
+      "updated_at": "2026-04-20T05:23:28",
+      "notes": ""
+    },
+    "天道图书馆": {
+      "slug": "天道图书馆",
+      "title": "天道图书馆",
+      "author": "横扫天涯",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/天道图书馆.txt",
+      "genre": "玄幻",
+      "tags": [
+        "系统流",
+        "签到",
+        "横扫天涯"
+      ],
+      "total_chapters": 2249,
+      "scraped_chapters": 2249,
+      "total_words": 5244680,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:29",
+      "updated_at": "2026-04-20T05:23:29",
+      "notes": ""
+    },
+    "斗破苍穹": {
+      "slug": "斗破苍穹",
+      "title": "斗破苍穹",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/斗破苍穹.txt",
+      "genre": "玄幻",
+      "tags": [
+        "升级流",
+        "复仇",
+        "黄金三章",
+        "炼药",
+        "天蚕土豆"
+      ],
+      "total_chapters": 1697,
+      "scraped_chapters": 1697,
+      "total_words": 5259040,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:31",
+      "updated_at": "2026-04-20T05:23:31",
+      "notes": ""
+    },
+    "《斗罗大陆Ⅱ绝世唐门》": {
+      "slug": "《斗罗大陆Ⅱ绝世唐门》",
+      "title": "《斗罗大陆Ⅱ绝世唐门》",
+      "author": "唐家三少",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/斗罗大陆Ⅱ绝世唐门.txt",
+      "genre": "玄幻",
+      "tags": [
+        "升级流",
+        "斗罗",
+        "唐家三少"
+      ],
+      "total_chapters": 612,
+      "scraped_chapters": 612,
+      "total_words": 4606921,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:32",
+      "updated_at": "2026-04-20T05:23:32",
+      "notes": ""
+    },
+    "武动乾坤": {
+      "slug": "武动乾坤",
+      "title": "武动乾坤",
+      "author": "天蚕土豆",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/武动乾坤.txt",
+      "genre": "玄幻",
+      "tags": [
+        "升级流",
+        "天蚕土豆"
+      ],
+      "total_chapters": 1311,
+      "scraped_chapters": 1311,
+      "total_words": 3410149,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:33",
+      "updated_at": "2026-04-20T05:23:33",
+      "notes": ""
+    },
+    "盗墓笔记": {
+      "slug": "盗墓笔记",
+      "title": "盗墓笔记",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/盗墓笔记.txt",
+      "genre": "悬疑",
+      "tags": [
+        "盗墓",
+        "冒险",
+        "南派三叔"
+      ],
+      "total_chapters": 384,
+      "scraped_chapters": 384,
+      "total_words": 1273794,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:33",
+      "updated_at": "2026-04-20T05:23:33",
+      "notes": ""
+    },
+    "赘婿": {
+      "slug": "赘婿",
+      "title": "赘婿",
+      "author": "",
+      "source": "so-novel",
+      "source_url": "/home/user/chineseBooks/赘婿.txt",
+      "genre": "历史",
+      "tags": [
+        "架空",
+        "商战",
+        "愤怒的香蕉"
+      ],
+      "total_chapters": 842,
+      "scraped_chapters": 842,
+      "total_words": 4644534,
+      "is_complete": false,
+      "added_at": "2026-04-20T05:23:34",
+      "updated_at": "2026-04-20T05:23:34",
       "notes": ""
     }
   }

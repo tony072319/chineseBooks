@@ -26,19 +26,25 @@ from .metadata import BookRecord, MetadataStore, slugify
 
 logger = logging.getLogger(__name__)
 
-# 典型章节标题格式：
+# 标准章节标题格式：
 #   第一章 XXX
 #   第 1 章 XXX
-#   第1章：XXX
 #   第一百零八章 XXX
-#   第001章 XXX
-#   新世界 第一章 XXX  （续集带前缀）
-# 严格要求：行首（允许 ≤8 字的短前缀）匹配 "第X章"，整行 <= 80 字。
-# 避免把正文里的"第一回合"、"这里是第一章的描述"等误识别为章节标题。
+#   新世界 第一章 XXX                 （续集带 1 个前缀）
+#   第一篇 一夜觉醒 第一章 罗峰         （卷/篇 + 章，带 2 个前缀）
+# 允许 0-3 个短前缀块（如"第X卷 XX"），整行 ≤80 字
 CHAPTER_HEADING = re.compile(
-    r"^\s*(?:\S{1,8}\s+)?"
+    r"^\s*(?:\S{1,10}\s+){0,3}"
     r"第\s*([零一二三四五六七八九十百千万亿0-9]{1,15})\s*章"
-    r"(?=[\s：:．.、，,。\-（(]|$)"  # 章 后必须是分隔符或行尾，排除"第一章的..."
+    r"(?=[\s：:．.、，,。\-（(]|$)"
+)
+
+# 非标章节格式（如《大王饶命》用 "1、庙会"、"2、老乞丐" 这种）：
+#   1、XXX  |  1.XXX  |  1 XXX  |  一、XXX
+CHAPTER_HEADING_NUMERIC = re.compile(
+    r"^\s*(\d{1,4}|[零一二三四五六七八九十百千]{1,6})"
+    r"\s*[、．\.。]\s*"
+    r"(.{1,50}?)\s*$"
 )
 
 # 文件名提取章节标题：`第一章 XXX.txt`
@@ -50,18 +56,26 @@ MAX_HEADING_LINE_LEN = 80
 MAX_CHAPTER_NUMBER = 5000
 
 
-def detect_chapter_heading(line: str) -> tuple[int, str] | None:
-    """若 line 是章节标题，返回 (章号, 完整标题)；否则返回 None。"""
+def detect_chapter_heading(line: str, numeric_style: bool = False) -> tuple[int, str] | None:
+    """若 line 是章节标题，返回 (章号, 完整标题)；否则返回 None。
+
+    默认识别标准 "第X章" 格式。当 numeric_style=True 时也识别 "1、XX" 这种。
+    """
     stripped = line.strip()
     if not stripped or len(stripped) > MAX_HEADING_LINE_LEN:
         return None
     m = CHAPTER_HEADING.match(stripped)
-    if not m:
-        return None
-    num = cn_to_int(m.group(1))
-    if num is None or num <= 0 or num > MAX_CHAPTER_NUMBER:
-        return None
-    return num, stripped
+    if m:
+        num = cn_to_int(m.group(1))
+        if num is not None and 0 < num <= MAX_CHAPTER_NUMBER:
+            return num, stripped
+    if numeric_style:
+        m = CHAPTER_HEADING_NUMERIC.match(stripped)
+        if m:
+            num = cn_to_int(m.group(1))
+            if num is not None and 0 < num <= MAX_CHAPTER_NUMBER:
+                return num, stripped
+    return None
 
 BOOK_DIR_PATTERN = re.compile(r"^(.+?)[（(](.+?)[)）]$")  # "斗破苍穹（天蚕土豆）"
 
@@ -188,13 +202,16 @@ def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
     author = ""
     body_start = 0
 
-    for i, line in enumerate(lines[:20]):
-        stripped = line.strip()
-        if stripped.startswith("书名"):
-            title = _right_of_colon(stripped) or title
+    for i, line in enumerate(lines[:30]):
+        kv = _parse_header_kv(line)
+        if kv is None:
+            continue
+        key, value = kv
+        if key == "书名":
+            title = value or title
             body_start = i + 1
-        elif stripped.startswith("作者"):
-            author = _right_of_colon(stripped) or author
+        elif key == "作者":
+            author = value or author
             body_start = i + 1
 
     # 如果文件名是"书名(作者)"风格，优先用那个
@@ -203,35 +220,38 @@ def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
         title = name_m.group(1).strip()
         author = name_m.group(2).strip() or author
 
-    chapters: list[ParsedChapter] = []
-    current_title: str | None = None
-    current_parsed_num: int | None = None
-    current_lines: list[str] = []
+    def _split(numeric_style: bool) -> list[ParsedChapter]:
+        out: list[ParsedChapter] = []
+        cur_title: str | None = None
+        cur_num: int | None = None
+        cur_lines: list[str] = []
 
-    def flush() -> None:
-        nonlocal current_title, current_parsed_num, current_lines
-        if current_title is None:
-            return
-        body = "\n".join(current_lines).strip()
-        chapters.append(
-            ParsedChapter(
-                index=current_parsed_num or 0,   # 临时值，后面会按位置重写
-                title=current_title,
-                body=body,
-            )
-        )
-        current_title = None
-        current_parsed_num = None
-        current_lines = []
+        def _flush() -> None:
+            nonlocal cur_title, cur_num, cur_lines
+            if cur_title is None:
+                return
+            body = "\n".join(cur_lines).strip()
+            out.append(ParsedChapter(index=cur_num or 0, title=cur_title, body=body))
+            cur_title = None
+            cur_num = None
+            cur_lines = []
 
-    for line in lines[body_start:]:
-        detected = detect_chapter_heading(line)
-        if detected is not None:
-            flush()
-            current_parsed_num, current_title = detected
-        elif current_title is not None:
-            current_lines.append(line)
-    flush()
+        for line in lines[body_start:]:
+            detected = detect_chapter_heading(line, numeric_style=numeric_style)
+            if detected is not None:
+                _flush()
+                cur_num, cur_title = detected
+            elif cur_title is not None:
+                cur_lines.append(line)
+        _flush()
+        return out
+
+    chapters = _split(numeric_style=False)
+    # 标准 "第X章" 没识别到任何章节，或章节数少得可疑（< 20），换成宽松模式重试
+    if len(chapters) < 20:
+        alt = _split(numeric_style=True)
+        if len(alt) > len(chapters):
+            chapters = alt
 
     if not chapters:
         raise ValueError(f"从 {path} 未解析出任何章节（没有识别到章节标题）。")
@@ -248,11 +268,23 @@ def parse_single_file(path: Path) -> tuple[str, str, list[ParsedChapter]]:
     return title, author, filtered
 
 
-def _right_of_colon(s: str) -> str:
-    for sep in ("：", ":"):
-        if sep in s:
-            return s.split(sep, 1)[1].strip()
-    return ""
+_HEADER_NOISE = re.compile(
+    r"(?:栏目|类型|类别|来源|上传|时间|字数|总字数|作品类型|主要角色|简介)[：:]?"
+)
+
+
+def _parse_header_kv(line: str) -> tuple[str, str] | None:
+    """从 TXT 头部一行抽 (key, value)。兼容 "书名：XXX" 和 "作    者    XXX"。"""
+    stripped = line.strip()
+    m = re.match(r"^(作\s*者|书\s*名)[\s\t：:\u3000]+(.+?)$", stripped)
+    if not m:
+        return None
+    key = re.sub(r"\s+", "", m.group(1))
+    value = m.group(2).strip()
+    # 砍掉多余信息（"作者 某某  栏目:xxx  字数:yyy" 这种）
+    value = re.split(r"[\t\u3000]|\s{2,}", value, maxsplit=1)[0]
+    value = _HEADER_NOISE.split(value, maxsplit=1)[0]
+    return key, value.strip()
 
 
 # ---------------- 入库 ----------------
