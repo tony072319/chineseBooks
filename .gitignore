@@ -1,0 +1,36 @@
+# 语料库：盗版站抓取的原文，绝对不能提交
+corpus/raw/
+corpus/*.db
+corpus/*.sqlite
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 分析中间产物
+analysis/cache/
+analysis/*.pkl
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 日志
+*.log
+logs/
+
+# 个人草稿（未准备好提交的章节）
+writing/章节/_草稿/
